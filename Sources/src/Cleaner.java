@@ -1,5 +1,6 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
@@ -12,10 +13,12 @@ import org.apache.hadoop.mapreduce.lib.fieldsel.FieldSelectionHelper;
 import org.apache.hadoop.mapreduce.lib.fieldsel.FieldSelectionMapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +58,14 @@ public class Cleaner extends Configured implements Tool {
     public int run(String[] args) throws Exception {
         JobConf conf = new JobConf(getConf(), Cleaner.class);
 
+        args = new GenericOptionsParser(conf, args).getRemainingArgs();
+
+        Path inputPath = new Path(args[0]);
+        Path outputPath = new Path(args[1]);
+
+        FileSystem fs = FileSystem.get(new URI(outputPath.toString()), conf);
+        fs.delete(outputPath, true);
+
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
 
@@ -77,8 +88,8 @@ public class Cleaner extends Configured implements Tool {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileInputFormat.addInputPath(job, inputPath);
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         return (job.waitForCompletion(true) ? 0 : 1);
     }

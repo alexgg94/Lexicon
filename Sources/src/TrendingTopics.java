@@ -1,5 +1,6 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -13,6 +14,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
+import java.net.URI;
 
 
 public class TrendingTopics extends Configured implements Tool
@@ -36,6 +38,12 @@ public class TrendingTopics extends Configured implements Tool
 
         args = new GenericOptionsParser(conf, args).getRemainingArgs();
 
+        Path inputPath = new Path(args[0]);
+        Path outputPath = new Path(args[1]);
+
+        FileSystem fs = FileSystem.get(new URI(outputPath.toString()), conf);
+        fs.delete(outputPath, true);
+
         conf.set(RegexMapper.PATTERN, "(?:\\s|\\A|^)[##]+([A-Za-z0-9-_]+)");
         Job job = Job.getInstance(conf);
 
@@ -45,8 +53,8 @@ public class TrendingTopics extends Configured implements Tool
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
 
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileInputFormat.addInputPath(job, inputPath);
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         return (job.waitForCompletion(true) ? 0 : 1);
     }
