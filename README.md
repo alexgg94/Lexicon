@@ -12,11 +12,18 @@ This class uses the **chain mapper** and **hadoop-predefined FieldSelectionMappe
 
 #### Input/Output
 - Input: Directory with all tweets data. All files will be processed.
-- Output: Directory for the cleanup process output.
+- Output: Directory for the process output.
 
 ### TrendingTopics
 This class uses the **RegexMapper** in order to generate a list of all hashtags. Also, it uses a custom **Reducer** just to count the occurrences of each hashtag to determine the **trending topics**.
 
 #### Input/Output
 - Input: Directory with all tweets data. All files will be processed.
-- Output: Directory for the trending topic process output.
+- Output: Directory for the process output.
+
+### TopNPattern
+This class uses **TopNPattern** to get the **N** trending topics.
+
+#### Input/Output
+- Input: Output directory of **TrendingTopics** class.
+- Output: Directory for the process output.
