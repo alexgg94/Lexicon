@@ -25,5 +25,12 @@ This class uses the **RegexMapper** in order to generate a list of all hashtags.
 This class uses **TopNPattern** to get the **N** trending topics.
 
 #### Input/Output
-- Input: Output directory of **TrendingTopics** class.
+- Input: **N** and Output directory of **TrendingTopics** class.
+- Output: Directory for the process output.
+
+### HashtagSentiment
+This class uses **Distributed Cached** files to define a set of positive and negative words. For each hashtag will get a ratio of the positive and negative words in order to "determine" the global sentiment about that hashtag.
+
+#### Input/Output
+- Input: Negative words file, Positive words file and output directory of **Cleaner** class.
 - Output: Directory for the process output.
