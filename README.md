@@ -34,3 +34,14 @@ This class uses **Distributed Cached** files to define a set of positive and neg
 #### Input/Output
 - Input: Negative words file, Positive words file and output directory of **Cleaner** class.
 - Output: Directory for the process output.
+
+### JobsJoint
+This class gathers all the previous MapReduce jobs.
+
+#### Input/Output
+- Input: Directory with all tweets data, **N**, Negative words file and Positive words file.
+- Output: CleanedData output, Topics output, TrendingTopics output and HashtagSentiment output.
+
+## Running
+- Step by step: **Cleaner** > **TrendingTopics** > **TopNPattern** > **HashtagSentiment**
+- All together: **JobsJoint**
