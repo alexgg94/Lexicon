@@ -20,12 +20,12 @@ import java.util.TreeMap;
 
 public class TopNPattern extends Configured implements Tool {
 
-    private static final int N = 10;
-
     public static class TopNMapper extends Mapper<Object, Text, NullWritable, Text> {
         private TreeMap<Integer, Text> repToRecordMap = new TreeMap<Integer, Text>();
-
+        private int N;
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            Configuration conf = context.getConfiguration();
+            N = Integer.parseInt(conf.get("N"));
             String[] splitted_value = value.toString().split("\\s");
 
             repToRecordMap.put(Integer.parseInt(splitted_value[2]), new Text(splitted_value[1] +
@@ -45,8 +45,10 @@ public class TopNPattern extends Configured implements Tool {
 
     public static class TopNReducer extends Reducer<NullWritable, Text, NullWritable, Text> {
         private TreeMap<Integer, Text> repToRecordMap = new TreeMap<Integer, Text>();
-
+        private int N;
         public void reduce(NullWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            Configuration conf = context.getConfiguration();
+            N = Integer.parseInt(conf.get("N"));
             for (Text value : values) {
                 String[] splitted_value = value.toString().split("\\s");
 
@@ -69,8 +71,9 @@ public class TopNPattern extends Configured implements Tool {
 
         args = new GenericOptionsParser(conf, args).getRemainingArgs();
 
-        Path inputPath = new Path(args[0]);
-        Path outputPath = new Path(args[1]);
+        conf.set("N", args[0]);
+        Path inputPath = new Path(args[1]);
+        Path outputPath = new Path(args[2]);
 
         FileSystem fs = FileSystem.get(new URI(outputPath.toString()), conf);
         fs.delete(outputPath, true);

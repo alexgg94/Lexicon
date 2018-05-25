@@ -2,9 +2,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.map.RegexMapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -17,19 +19,42 @@ import java.io.IOException;
 import java.net.URI;
 
 
-public class TrendingTopics extends Configured implements Tool
-{
+public class TrendingTopics extends Configured implements Tool {
     public static class TrendingTopicsReducer
-            extends Reducer<Text,LongWritable,Text,LongWritable>
-    {
+            extends Reducer<Text, LongWritable, Text, LongWritable> {
         public void reduce(Text key, Iterable<LongWritable> values,
-                           Context context) throws IOException, InterruptedException
-        {
+                           Context context) throws IOException, InterruptedException {
             int total = 0;
             for (LongWritable val : values) {
-                total++ ;
+                total += Integer.valueOf(val.toString());
             }
-            context.write(key, new LongWritable(total));  // Write reduce result {word,count}
+            context.write(key, new LongWritable(total));
+        }
+    }
+
+    public static class TrendingTopicsPartition extends Partitioner<Text, LongWritable> {
+
+        @Override
+        public int getPartition(Text key, LongWritable value, int numPartitions) {
+            final char TopFirstPartition='g', TopSecondPartition='p';
+
+            String word = key.toString();
+            word = word.replaceAll("\\s", "");
+            char letter;
+            if (!word.isEmpty())
+                letter = word.toLowerCase().charAt(1);
+            else return (0);
+            if (numPartitions != 3) {
+                return (int) (letter - 'a') % numPartitions;
+            } else {
+                if (letter <= TopFirstPartition)
+                    return (0);
+                else if (letter > TopFirstPartition && letter <= TopSecondPartition)
+                    return (1);
+                else if (letter > TopSecondPartition)
+                    return (2);
+            }
+            return(0);
         }
     }
 
@@ -50,6 +75,9 @@ public class TrendingTopics extends Configured implements Tool
         job.setJarByClass(TrendingTopics.class);
         job.setMapperClass(RegexMapper.class);
         job.setReducerClass(TrendingTopicsReducer.class);
+        job.setCombinerClass(TrendingTopicsReducer.class);
+        job.setPartitionerClass(TrendingTopicsPartition.class);
+        job.setNumReduceTasks(3);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
 

@@ -1,14 +1,13 @@
+import CustomTypes.OwnWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.filecache.DistributedCache;
-import org.apache.hadoop.mapreduce.lib.map.RegexMapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -23,12 +22,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class HashtagSentiment extends Configured implements Tool {
-    public static class HashtagSentimentMapper extends Mapper<Object, Text, Text, Text> {
+    public static class HashtagSentimentMapper extends Mapper<Object, Text, Text, OwnWritable> {
 
         private Set positiveWords = new HashSet();
         private Set negativeWords = new HashSet();
@@ -66,8 +64,7 @@ public class HashtagSentiment extends Configured implements Tool {
             }
 
             for (String hashtag : hashtags) {
-                context.write(new Text(hashtag),
-                        new Text(String.valueOf(positiveWords_count - negativeWords_count) + "\t" + tweetLength));
+                context.write(new Text(hashtag), new OwnWritable(new IntWritable(positiveWords_count - negativeWords_count), new IntWritable(tweetLength)));
             }
         }
 
@@ -88,20 +85,15 @@ public class HashtagSentiment extends Configured implements Tool {
         }
     }
 
-    public static class HashtagSentimentReducer extends Reducer<Text, Text, Text, Text> {
+    public static class HashtagSentimentReducer extends Reducer<Text, OwnWritable, Text, Text> {
 
-        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            int polarity;
-            int tweetLength;
+        public void reduce(Text key, Iterable<OwnWritable> values, Context context) throws IOException, InterruptedException {
             double ratio = 0;
-            for (Text value : values) {
-                String[] splitted_value = value.toString().split("\\s");
-
-                polarity = Integer.parseInt(splitted_value[0].toString());
-                tweetLength = Integer.parseInt(splitted_value[1].toString());
-
-                ratio += ((double)polarity / (double)tweetLength);
+            for (OwnWritable value : values) {
+                ratio += ((double) value.getPolarity().get() / (double) value.getTweetLength().get());
             }
+
+            String tmp = String.valueOf(ratio);
 
             context.write(key, new Text(String.valueOf(ratio)));
         }
@@ -129,7 +121,7 @@ public class HashtagSentiment extends Configured implements Tool {
         job.setMapperClass(HashtagSentimentMapper.class);
         job.setReducerClass(HashtagSentimentReducer.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(OwnWritable.class);
 
         FileInputFormat.addInputPath(job, inputPath);
         FileOutputFormat.setOutputPath(job, outputPath);
