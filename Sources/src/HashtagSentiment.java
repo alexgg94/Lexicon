@@ -92,9 +92,7 @@ public class HashtagSentiment extends Configured implements Tool {
             for (OwnWritable value : values) {
                 ratio += ((double) value.getPolarity().get() / (double) value.getTweetLength().get());
             }
-
-            String tmp = String.valueOf(ratio);
-
+            
             context.write(key, new Text(String.valueOf(ratio)));
         }
     }

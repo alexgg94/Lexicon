@@ -7,14 +7,11 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.DefaultCodec;
-import org.apache.hadoop.io.compress.GzipCodec;
-import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
 import org.apache.hadoop.mapreduce.lib.fieldsel.FieldSelectionHelper;
 import org.apache.hadoop.mapreduce.lib.fieldsel.FieldSelectionMapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.lib.map.RegexMapper;
@@ -23,6 +20,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import java.net.URI;
+import java.util.Date;
 
 
 public class JobsJoint {
@@ -30,6 +28,9 @@ public class JobsJoint {
     private static String N;
 
     public static void main(String[] args) throws Exception {
+
+        Date startingDate = new Date();
+
         Configuration conf = new Configuration();
 
         args = new GenericOptionsParser(conf, args).getRemainingArgs();
@@ -160,8 +161,11 @@ public class JobsJoint {
             System.out.println("Still running...");
             Thread.sleep(5000);
         }
-        System.out.println("done");
         jobctrl.stop();
+
+        Date endingDate = new Date();
+
+        System.out.println("Starting date: " + startingDate + "\t Ending date: " + endingDate);
     }
 }
 

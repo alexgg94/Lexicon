@@ -13,6 +13,8 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import java.util.Random;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.TreeMap;
@@ -21,14 +23,16 @@ import java.util.TreeMap;
 public class TopNPattern extends Configured implements Tool {
 
     public static class TopNMapper extends Mapper<Object, Text, NullWritable, Text> {
-        private TreeMap<Integer, Text> repToRecordMap = new TreeMap<Integer, Text>();
+        private TreeMap<Double, Text> repToRecordMap = new TreeMap<Double, Text>();
         private int N;
+
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            Random random = new Random();
             Configuration conf = context.getConfiguration();
             N = Integer.parseInt(conf.get("N"));
             String[] splitted_value = value.toString().split("\\s");
 
-            repToRecordMap.put(Integer.parseInt(splitted_value[2]), new Text(splitted_value[1] +
+            repToRecordMap.put(Double.parseDouble(Integer.parseInt(splitted_value[2]) + "." + random.nextInt(1111111)), new Text(splitted_value[1] +
                     "\t" + splitted_value[2]));
 
             if (repToRecordMap.size() > 2 * N) {
@@ -44,15 +48,17 @@ public class TopNPattern extends Configured implements Tool {
     }
 
     public static class TopNReducer extends Reducer<NullWritable, Text, NullWritable, Text> {
-        private TreeMap<Integer, Text> repToRecordMap = new TreeMap<Integer, Text>();
+        private TreeMap<Double, Text> repToRecordMap = new TreeMap<Double, Text>();
         private int N;
+
         public void reduce(NullWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            Random random = new Random();
             Configuration conf = context.getConfiguration();
             N = Integer.parseInt(conf.get("N"));
             for (Text value : values) {
                 String[] splitted_value = value.toString().split("\\s");
 
-                repToRecordMap.put(Integer.parseInt(splitted_value[1]), new Text(splitted_value[0] +
+                repToRecordMap.put(Double.parseDouble(Integer.parseInt(splitted_value[1]) + "." + random.nextInt(1111111)), new Text(splitted_value[0] +
                         "\t" + splitted_value[1]));
 
                 if (repToRecordMap.size() > N) {
