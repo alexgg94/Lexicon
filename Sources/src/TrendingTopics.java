@@ -44,7 +44,7 @@ public class TrendingTopics extends Configured implements Tool {
                 letter = word.toLowerCase().charAt(1);
             else return (0);
             if (numPartitions != 3) {
-                return (int) (letter - 'a') % numPartitions;
+                return (int) (letter - ' ') % numPartitions;
             } else {
                 if (letter <= TopFirstPartition)
                     return (0);
