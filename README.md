@@ -43,7 +43,7 @@ The **reducer** will receive this structure in order to get the global sentiment
 This class gathers all the previous MapReduce jobs. Use the compressed sequence file format for the partial results.
 
 #### Input/Output
-- Input: Directory with all tweets data, **N**, Negative words file and Positive words file.
+- Input: Directory with all tweets data, Number of partitioners, **N**, Negative words file and Positive words file.
 - Output: CleanedData output, Topics output, TrendingTopics output and HashtagSentiment output.
 
 ## Running
