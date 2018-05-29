@@ -2,7 +2,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -77,7 +76,7 @@ public class TrendingTopics extends Configured implements Tool {
         job.setReducerClass(TrendingTopicsReducer.class);
         job.setCombinerClass(TrendingTopicsReducer.class);
         job.setPartitionerClass(TrendingTopicsPartition.class);
-        job.setNumReduceTasks(3);
+        job.setNumReduceTasks(Integer.parseInt(args[2]));
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
 

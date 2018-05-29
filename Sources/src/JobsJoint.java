@@ -26,6 +26,7 @@ import java.util.Date;
 public class JobsJoint {
 
     private static String N;
+    private static String NumberOfPartitioners;
 
     public static void main(String[] args) throws Exception {
 
@@ -36,13 +37,14 @@ public class JobsJoint {
         args = new GenericOptionsParser(conf, args).getRemainingArgs();
 
         Path inputPath = new Path(args[0]);
-        N = args[1];
-        String negativeWords_inputPath = args[2];
-        String positiveWords_inputPath = args[3];
-        Path cleanedDataOutputPath = new Path(args[4]);
-        Path topicsOutputPath = new Path(args[5]);
-        Path trendingTopicsOutputPath = new Path(args[6]);
-        Path hashtagSentimentOutputPath = new Path(args[7]);
+        NumberOfPartitioners = args[1];
+        N = args[2];
+        String negativeWords_inputPath = args[3];
+        String positiveWords_inputPath = args[4];
+        Path cleanedDataOutputPath = new Path(args[5]);
+        Path topicsOutputPath = new Path(args[6]);
+        Path trendingTopicsOutputPath = new Path(args[7]);
+        Path hashtagSentimentOutputPath = new Path(args[8]);
 
         FileSystem cleanedData_fs = FileSystem.get(new URI(cleanedDataOutputPath.toString()), conf);
         cleanedData_fs.delete(cleanedDataOutputPath, true);
@@ -95,6 +97,9 @@ public class JobsJoint {
         topics_job.setJarByClass(TrendingTopics.class);
         topics_job.setMapperClass(RegexMapper.class);
         topics_job.setReducerClass(TrendingTopics.TrendingTopicsReducer.class);
+        topics_job.setCombinerClass(TrendingTopics.TrendingTopicsReducer.class);
+        topics_job.setPartitionerClass(TrendingTopics.TrendingTopicsPartition.class);
+        topics_job.setNumReduceTasks(Integer.parseInt(NumberOfPartitioners));
         topics_job.setOutputKeyClass(Text.class);
         topics_job.setOutputValueClass(LongWritable.class);
 
