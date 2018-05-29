@@ -18,7 +18,7 @@ This class uses the **chain mapper** and **hadoop-predefined FieldSelectionMappe
 This class uses the **RegexMapper** in order to generate a list of all hashtags. Also, it uses a custom **Reducer** just to count the occurrences of each hashtag to determine the **trending topics**. Also, to improve the performance, **Combiners** and **Partitioners** are used.
 
 #### Input/Output
-- Input: Directory with all tweets data. All files will be processed.
+- Input: Directory with all tweets data (all files will be processed). Number of partitioners.
 - Output: Directory for the process output.
 
 ### TopNPattern
