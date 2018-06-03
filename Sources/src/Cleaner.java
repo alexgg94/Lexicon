@@ -25,11 +25,8 @@ import java.util.regex.Pattern;
 
 public class Cleaner extends Configured implements Tool {
     public static class LowerCaseMapper extends Mapper<Object, Text, Text, Text> {
-        private Text lowercased = new Text();
-
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            lowercased.set(value.toString().toLowerCase());
-            context.write(new Text(""), lowercased);
+            context.write(new Text(""), new Text(value.toString().toLowerCase()));
         }
     }
 
@@ -42,16 +39,15 @@ public class Cleaner extends Configured implements Tool {
 
     public static class TweetSelectorMapper extends Mapper<Text, Text, Text, Text> {
 
-        private Pattern pattern = Pattern.compile("((?:\\s|\\A|^)[##]+([A-Za-z0-9-_]+))*([A-Za-z0-9-_]+)(?:\\s|\\A|^)[##]+([A-Za-z0-9-_]+)");
+        private Pattern pattern = Pattern.compile("(?:\\s|\\A|^)[##]+([A-Za-z0-9-_]+)");
         private Matcher matcher;
 
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
 
             matcher = pattern.matcher(value.toString());
 
-            if (matcher.find()) {
+            if (matcher.find())
                 context.write(new Text(""), new Text(value.toString()));
-            }
         }
     }
 
@@ -70,7 +66,7 @@ public class Cleaner extends Configured implements Tool {
         conf.setOutputFormat(TextOutputFormat.class);
 
         Job job = Job.getInstance();
-
+        job.setJarByClass(Cleaner.class);
         Configuration lowerCaseMapperConf = new Configuration(false);
         ChainMapper.addMapper(job, LowerCaseMapper.class, Object.class, Text.class, Text.class, Text.class, lowerCaseMapperConf);
 

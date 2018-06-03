@@ -61,6 +61,7 @@ public class JobsJoint {
         /*-----------------------------------------------------------------------------------------------------------*/
         Job cleaner_job = Job.getInstance(conf);
         cleaner_job.setJobName("Cleaner");
+        cleaner_job.setJarByClass(Cleaner.class);
 
         Configuration lowerCaseMapperConf = new Configuration(false);
         ChainMapper.addMapper(cleaner_job, Cleaner.LowerCaseMapper.class, Object.class, Text.class, Text.class, Text.class, lowerCaseMapperConf);
@@ -170,7 +171,7 @@ public class JobsJoint {
 
         Date endingDate = new Date();
 
-        System.out.println("Starting date: " + startingDate + "\t Ending date: " + endingDate);
+        System.out.println("+Starting date: " + startingDate + "\t Ending date: " + endingDate);
     }
 }
 

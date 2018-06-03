@@ -32,8 +32,8 @@ public class TopNPattern extends Configured implements Tool {
             N = Integer.parseInt(conf.get("N"));
             String[] splitted_value = value.toString().split("\\s");
 
-            repToRecordMap.put(Double.parseDouble(Integer.parseInt(splitted_value[2]) + "." + random.nextInt(1111111)), new Text(splitted_value[1] +
-                    "\t" + splitted_value[2]));
+            repToRecordMap.put(Double.parseDouble(Integer.parseInt(splitted_value[1]) + "." + random.nextInt(1111111)), new Text(splitted_value[0] +
+                    "\t" + splitted_value[1]));
 
             if (repToRecordMap.size() > 2 * N) {
                 repToRecordMap.remove(repToRecordMap.firstKey());

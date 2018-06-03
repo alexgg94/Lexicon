@@ -27,7 +27,7 @@ public class TrendingTopics extends Configured implements Tool {
             for (LongWritable val : values) {
                 total += Integer.valueOf(val.toString());
             }
-            context.write(key, new LongWritable(total));
+            context.write(new Text(key.toString().replaceAll("\\s", "")), new LongWritable(total));
         }
     }
 
